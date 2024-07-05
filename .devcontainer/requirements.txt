@@ -1,0 +1,8 @@
+transformers
+accelerate
+sentencepiece
+fschat[train]
+sentence-transformers
+faiss-gpu
+flash-attn
+guidance
