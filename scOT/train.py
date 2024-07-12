@@ -5,26 +5,28 @@ Can be used in a single config or sweep setup.
 """
 
 import argparse
+import json
+import os
+import random
+
+import numpy as np
+import psutil
 import torch
 import wandb
-import numpy as np
-import random
-import json
-import psutil
-import os
 
 os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
-import yaml
 import matplotlib.pyplot as plt
 import transformers
+import yaml
 from accelerate.utils import broadcast_object_list
-from scOT.trainer import TrainingArguments, Trainer
-from transformers import EarlyStoppingCallback
-from scOT.model import ScOT, ScOTConfig
 from mpl_toolkits.axes_grid1 import ImageGrid
-from scOT.problems.base import get_dataset, BaseTimeDataset
-from scOT.utils import get_num_parameters, read_cli, get_num_parameters_no_embed
+from transformers import EarlyStoppingCallback
+
 from scOT.metrics import relative_lp_error
+from scOT.model import ScOT, ScOTConfig
+from scOT.problems.base import BaseTimeDataset, get_dataset
+from scOT.trainer import Trainer, TrainingArguments
+from scOT.utils import get_num_parameters, get_num_parameters_no_embed, read_cli
 
 SEED = 0
 torch.manual_seed(SEED)
@@ -85,8 +87,9 @@ def create_predictions_plot(predictions, labels, wandb_prefix):
         fig, 111, nrows_ncols=(predictions.shape[1] + labels.shape[1], 4), axes_pad=0.1
     )
 
-    vmax, vmin = max(predictions.max(), labels.max()), min(
-        predictions.min(), labels.min()
+    vmax, vmin = (
+        max(predictions.max(), labels.max()),
+        min(predictions.min(), labels.min()),
     )
 
     for _i, ax in enumerate(grid):
@@ -408,7 +411,7 @@ if __name__ == "__main__":
 
     trainer.train(resume_from_checkpoint=params.resume_training)
     trainer.save_model(train_config.output_dir)
-    
+
     if (RANK == 0 or RANK == -1) and params.push_to_hf_hub is not None:
         model.push_to_hub(params.push_to_hf_hub)
 
@@ -417,7 +420,7 @@ if __name__ == "__main__":
         if params.max_num_train_time_steps is None
         and params.train_time_step_size is None
         and not params.train_small_time_transition
-        and not ".time" in config["dataset"]
+        and ".time" not in config["dataset"]
         else False
     )
     if do_test:

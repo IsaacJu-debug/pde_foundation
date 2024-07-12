@@ -14,11 +14,33 @@ download_dataset() {
     huggingface-cli download "camlab-ethz/$dataset" --repo-type dataset --local-dir "$dir"
 }
 
+# List of datasets from the image
+datasets=(
+    "NS-PwC"
+    "NS-BB"
+    "NS-SL"
+    "NS-SVS"
+    "NS-Tracer-PwC"
+    "FNS-KF"
+    "CE-RPUI"
+    "CE-RM"
+    "GCE-RT"
+    "Wave-Gauss"
+    "Wave-Layer"
+    "ACE"
+    "SE-AF"
+    "Poisson-Gauss"
+    "Helmholtz"
+    "CE-CRP"
+    "CE-RP"
+    "CE-Gauss"
+    "NS-Sines"
+    "NS-Gauss"
+)
+
 # Download each dataset
-download_dataset "CE-CRP"
-download_dataset "CE-RP"
-download_dataset "CE-Gauss"
-download_dataset "NS-Sines"
-download_dataset "NS-Gauss"
+for dataset in "${datasets[@]}"; do
+    download_dataset "$dataset"
+done
 
 echo "All downloads completed."
