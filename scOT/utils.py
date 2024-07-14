@@ -25,8 +25,14 @@ def read_cli(parser):
     parser.add_argument(
         "--wandb_project_name",
         type=str,
-        default="scOT",
+        default="pde_foundation",
         help="Name of the wandb project",
+    )
+    parser.add_argument(
+        "--wandb_entity",
+        type=str,
+        default="scot",
+        help="Name of the wandb entity",
     )
     parser.add_argument(
         "--max_num_train_time_steps",
@@ -95,3 +101,15 @@ def get_num_parameters_no_embed(model):
         if not ("embeddings" in name or "patch_recovery" in name) and p.requires_grad:
             out += p.numel()
     return out
+
+
+def count_model_params(model):
+    """Returns the total number of parameters of a PyTorch model
+
+    Notes
+    -----
+    One complex number is counted as two parameters (we count real and imaginary parts)'
+    """
+    return sum(
+        [p.numel() * 2 if p.is_complex() else p.numel() for p in model.parameters()]
+    )
